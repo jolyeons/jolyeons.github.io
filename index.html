@@ -6,14 +6,15 @@
 <p>Hello World!</p>
 
 <button name="btn1" id="btn1">Click me!</button>
+  <p id="p1">This is new!</p>
 
   <script type="javascript">
     $(document).ready(function(){
       $("p").click(function(){
         $(this).hide();
       });
-      
-      $(#btn1).onClick(alert("HEY!");
+      $("#p1").hide();
+      $("#btn1").click($("#p1").show(););
     });
   </script>
 </body>
