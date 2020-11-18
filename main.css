@@ -1,12 +1,3 @@
-@font-face {
-  font-family: 'DIGITAL';
-  src: url('https://cssdeck.com/uploads/resources/fonts/digii/DS-DIGII.TTF');
-}
-
-html {
-  height: 100%;
-}
-
 .digital-clock {
   margin: auto;
   position: absolute;
