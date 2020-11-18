@@ -17,44 +17,39 @@
   
   <script>
     $(document).ready(function(){
-      
-      $("#p1").hide();
-      $("#btn1").click(function(){
-        $("#p1").show();
-      });
-      
+      $("#howto").show();
     });
   </script>
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
   
   <div class="jumbotron text-center">
-    <h1>Hello World!</h1>
-    <p>Resize this responsive page to see the effect!</p>
-    <button name="btn1" id="btn1">Click me!</button>
-    <p id="p1">This is new!</p>
+    <h1>Welcome.</h1>
   </div>
   
   <div class="container">
     <div class="row">
       <div class="col-sm-4">
         <h3>PST</h3>
-        
-        </div>
+        <br />
+        <div id="pstclock" class="digital-clock">00:00:00</div>
       </div>
       <div class="col-sm-4">
         <h3>CST</h3>
-        
-        </div>
+        <br />
+        <div id="cstclock" class="digital-clock">00:00:00</div>
       </div>
       <div class="col-sm-4">
         <h3>EST</h3>
-        
+        <br />
+        <div id="estclock" class="digital-clock">00:00:00</div>
       </div>
     </div>
   </div>
   
+  <script src="js/main.js"></script>
 </body>
 </html>
