@@ -24,9 +24,9 @@ function clockUpdate() {
     }
   }
 
-  var hp = addZero(twelveHour(date.getHours()));
-  var hc = addZero(twelveHour(date.getHours()+2));
-  var he = addZero(twelveHour(date.getHours()+3));
+  var hp = addZero(twelveHour(date.getUTCHours()-8));
+  var hc = addZero(twelveHour(date.getUTCHours()-6));
+  var he = addZero(twelveHour(date.getUTCHours()-5));
   var m = addZero(date.getMinutes());
   var s = addZero(date.getSeconds());
 
