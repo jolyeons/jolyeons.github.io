@@ -24,9 +24,17 @@ function clockUpdate() {
     }
   }
 
-  var hp = addZero(twelveHour(date.getUTCHours()-8));
-  var hc = addZero(twelveHour(date.getUTCHours()-6));
-  var he = addZero(twelveHour(date.getUTCHours()-5));
+  function twelveHour(x,y) {
+    if(x-y < 0){
+      return twelveHour(x + 12 -y);
+    }else{
+      return twelveHour(x) - y;
+    }
+  }
+
+  var hp = addZero(twelveHour(date.getUTCHours(),8));
+  var hc = addZero(twelveHour(date.getUTCHours(),6));
+  var he = addZero(twelveHour(date.getUTCHours(),5));
   var m = addZero(date.getMinutes());
   var s = addZero(date.getSeconds());
 
