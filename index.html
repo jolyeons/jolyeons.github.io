@@ -21,7 +21,12 @@
   <script>
     $(document).ready(function(){
       $("#howto").show();
+      $("#dbg").hide();
+      $('#welcome').click(showDebug());
     });
+    function showDebug(){
+      $("#dbg").show();
+    }
   </script>
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,7 +35,7 @@
 <body>
   
   <div class="jumbotron text-center">
-    <h1>Welcome.</h1>
+    <h1 id="welcome">Welcome.</h1>
   </div>
   
   <div class="container">
@@ -51,6 +56,13 @@
         <div id="estclock" class="digital-clock">00:00:00</div>
       </div>
     </div>
+  </div>
+  <div id="dbg">
+    <div id="dbg1"></div>
+    <div id="dbg2"></div>
+    <div id="dbg3"></div>
+    <div id="dbg4"></div>
+    <div id="dbg5"></div>
   </div>
   
   <script src="main.js"></script>
