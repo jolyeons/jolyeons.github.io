@@ -26,6 +26,8 @@ function clockUpdate() {
   }
 
   $('#dbg1').text(date.getUTCHours());
+  $('#dbg2').text(twelveHour(date.getUTCHours()));
+  $('#dbg3').text(twelveHour(date.getUTCHours() - 8));
 
   var hp = addZero(twelveHour(date.getUTCHours() - 8));
   var hc = addZero(twelveHour(date.getUTCHours() - 6));
