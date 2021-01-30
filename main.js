@@ -3,6 +3,8 @@ $(document).ready(function() {
   setInterval(clockUpdate, 1000);
 })
 
+var ival = 0;
+
 function clockUpdate() {
   var date = new Date();
   $('.digital-clock').css({'color': '#fff', 'text-shadow': '0 0 6px #ff0'});
@@ -25,9 +27,10 @@ function clockUpdate() {
     }
   }
 
-  $('#dbg1').text(date.getUTCHours());
-  $('#dbg2').text(twelveHour(date.getUTCHours()));
-  $('#dbg3').text(twelveHour(date.getUTCHours() - 8));
+  $('#dbg1').text(ival);
+  $('#dbg2').text(date.getUTCHours());
+  $('#dbg3').text(twelveHour(date.getUTCHours()));
+  $('#dbg4').text(twelveHour(date.getUTCHours() - 8));
 
   var hp = addZero(twelveHour(date.getUTCHours() - 8));
   var hc = addZero(twelveHour(date.getUTCHours() - 6));
@@ -38,4 +41,6 @@ function clockUpdate() {
   $('#pstclock').text(hp + ':' + m + ':' + s);
   $('#cstclock').text(hc + ':' + m + ':' + s);
   $('#estclock').text(he + ':' + m + ':' + s);
+
+  ival++;
 }
