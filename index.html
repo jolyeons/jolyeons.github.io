@@ -21,11 +21,15 @@
   <script>
     $(document).ready(function(){
       $("#howto").show();
-      $("#dbg").hide();
+      $('#dbg').click(hideDebug());
       $('#welcome').click(showDebug());
+      hideDebug();
     });
     function showDebug(){
-      $("#dbg").show();
+      $(".dbg").show();
+    }
+    function hideDebug(){
+      $(".dbg").hide();
     }
   </script>
   
@@ -58,12 +62,12 @@
     </div>
   </div>
   <div id="dbg">
-    <div id="dbg1"></div>
-    <div id="dbg2"></div>
-    <div id="dbg3"></div>
-    <div id="dbg4"></div>
-    <div id="dbg5"></div>
-    <div id="dbg6"></div>
+    <div id="dbg1" class="dbg"></div>
+    <div id="dbg2" class="dbg"></div>
+    <div id="dbg3" class="dbg"></div>
+    <div id="dbg4" class="dbg"></div>
+    <div id="dbg5" class="dbg"></div>
+    <div id="dbg6" class="dbg"></div>
   </div>
   
   <hr>
