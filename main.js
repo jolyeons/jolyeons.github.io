@@ -18,19 +18,19 @@ function clockUpdate() {
   }
 
   function twelveHour(x) {
-    if (x > 12) {
-      return x = x - 12;
-    } else if (x == 0) {
-      return x = 12;
-    } else {
-      return x;
+    var z = x % 12;
+    if (z == 0) {
+      return 12;
     }
+    return z;
   }
 
   $('#dbg1').text(ival);
   $('#dbg2').text(date.getUTCHours());
   $('#dbg3').text(twelveHour(date.getUTCHours()));
   $('#dbg4').text(twelveHour(date.getUTCHours() - 8));
+  $('#dbg5').text(twelveHour(ival));
+  $('#dbg6').text(twelveHour(ival - 8));
 
   var hp = addZero(twelveHour(date.getUTCHours() - 8));
   var hc = addZero(twelveHour(date.getUTCHours() - 6));
