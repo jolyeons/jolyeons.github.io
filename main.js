@@ -17,8 +17,8 @@ function clockUpdate() {
     }
   }
 
-  function twelveHour(x) {
-    var z = x % 12;
+  function twelveHour(x, y=0) {
+    var z = ((12-y)+x) % 12;
     if (z == 0) {
       return 12;
     }
