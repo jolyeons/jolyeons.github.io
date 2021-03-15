@@ -32,9 +32,9 @@ function clockUpdate() {
   $('#dbg5').text(twelveHour(ival));
   $('#dbg6').text(twelveHour(ival - 8));
 
-  var hp = addZero(twelveHour(date.getUTCHours() - 8));
-  var hc = addZero(twelveHour(date.getUTCHours() - 6));
-  var he = addZero(twelveHour(date.getUTCHours() - 5));
+  var hp = addZero(twelveHour(date.getUTCHours() - 7));
+  var hc = addZero(twelveHour(date.getUTCHours() - 5));
+  var he = addZero(twelveHour(date.getUTCHours() - 4));
   var m = addZero(date.getMinutes());
   var s = addZero(date.getSeconds());
 
