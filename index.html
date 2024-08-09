@@ -16,6 +16,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <!-- Latest compiled JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   
   
   <script>
@@ -24,6 +27,11 @@
       $('#dbg').click(hideDebug());
       $('#welcome').click(showDebug());
       hideDebug();
+
+      $('#datepick').daterangepicker();
+      $('#datepick').on("change", function(){
+        $("#yoyo").text("ok ok ok");
+      });
     });
     function showDebug(){
       $(".dbg").show();
@@ -68,6 +76,13 @@
     <div id="dbg4" class="dbg"></div>
     <div id="dbg5" class="dbg"></div>
     <div id="dbg6" class="dbg"></div>
+  </div>
+  <hr>
+  <br />
+  <div id="yoyo">sup</div>
+  <br />
+  <div>
+    <input type="text" id="datepick" />
   </div>
   
   <hr>
