@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>job_search.launchpad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1e1e2e;
+    --bg-sidebar: #181825;
+    --bg-surface: #24243a;
+    --bg-surface-hover: #2b2b45;
+    --border: #313148;
+    --text: #cdd6f4;
+    --text-dim: #7d7fa3;
+    --text-faint: #565973;
+    --blue: #89b4fa;
+    --green: #a6e3a1;
+    --mauve: #cba6f7;
+    --yellow: #f9e2af;
+    --red: #f38ba8;
+    --peach: #fab387;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  /* Title bar */
+  .titlebar{
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    position: sticky;
+    top:0;
+    z-index: 20;
+  }
+  .dots{display:flex; gap:6px;}
+  .dot{width:11px; height:11px; border-radius:50%;}
+  .dot.r{background:#f38ba8;}
+  .dot.y{background:#f9e2af;}
+  .dot.g{background:#a6e3a1;}
+  .titlebar-name{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-left: 6px;
+  }
+  .titlebar-name b{color: var(--text);}
+
+  .layout{
+    display:flex;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  /* Sidebar */
+  .sidebar{
+    width: 200px;
+    flex-shrink:0;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    padding: 22px 14px;
+    min-height: calc(100vh - 41px);
+    position: sticky;
+    top: 41px;
+    align-self: flex-start;
+    display:none;
+  }
+  .sidebar-title{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding: 0 8px;
+  }
+  .sidebar a{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    text-decoration:none;
+    padding: 6px 8px;
+    border-radius: 5px;
+    margin-bottom:2px;
+    transition: background .15s, color .15s;
+  }
+  .sidebar a:hover{ background: var(--bg-surface-hover); color: var(--text); }
+  .sidebar a .sq{width:7px; height:7px; border-radius:2px; flex-shrink:0;}
+
+  /* Main */
+  main{
+    flex:1;
+    padding: 40px 32px 80px;
+    min-width: 0;
+  }
+  .hero{
+    margin-bottom: 34px;
+  }
+  .hero .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--green);
+  }
+  .hero .eyebrow::before{ content:"$ "; color: var(--text-faint); }
+  .hero h1{
+    font-family: var(--mono);
+    font-size: 30px;
+    font-weight: 700;
+    margin: 8px 0 6px;
+    color: #fff;
+  }
+  .hero p{
+    color: var(--text-dim);
+    font-size: 14.5px;
+    max-width: 560px;
+  }
+
+  /* Search-all terminal */
+  .search-block{
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 40px;
+  }
+  .search-block .label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 10px;
+  }
+  .search-row{
+    display:flex;
+    gap:10px;
+    flex-wrap: wrap;
+  }
+  .search-row input{
+    flex:1;
+    min-width: 220px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13.5px;
+    padding: 10px 12px;
+  }
+  .search-row input::placeholder{ color: var(--text-faint); }
+  .search-row input:focus{ outline: none; border-color: var(--blue); }
+  .search-row button{
+    background: var(--blue);
+    color: #1e1e2e;
+    border: none;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter .15s;
+  }
+  .search-row button:hover{ filter: brightness(1.1); }
+  .search-note{
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-top: 9px;
+  }
+
+  /* Section */
+  section{
+    margin-bottom: 40px;
+    scroll-margin-top: 60px;
+  }
+  .section-head{
+    display:flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-family: var(--mono);
+  }
+  .section-head .tag{
+    font-size: 13px;
+    color: var(--text-faint);
+  }
+  .section-head h2{
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .section-head .count{
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+  .card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-decoration:none;
+    color: var(--text);
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+    transition: border-color .15s, transform .15s, background .15s;
+    position:relative;
+  }
+  .card:hover{
+    background: var(--bg-surface-hover);
+    transform: translateY(-2px);
+  }
+  .card-top{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+  }
+  .card-name{
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .card-arrow{
+    color: var(--text-faint);
+    font-size: 15px;
+    transition: transform .15s, color .15s;
+  }
+  .card:hover .card-arrow{ transform: translate(2px,-2px); }
+  .card-desc{
+    font-size: 12.5px;
+    color: var(--text-dim);
+    flex:1;
+  }
+  .card-meta{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  /* accent variants */
+  .core .card-name, .core .card-arrow:hover{color: var(--blue);}
+  .core{ border-left: 3px solid var(--blue); }
+  .remote{ border-left: 3px solid var(--green); }
+  .research{ border-left: 3px solid var(--mauve); }
+  .core .card-meta{color: var(--blue);}
+  .remote .card-meta{color: var(--green);}
+  .research .card-meta{color: var(--mauve);}
+
+  /* Checklist */
+  .checklist{
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .checklist-head{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .checklist ul{ list-style:none; display:flex; flex-direction:column; gap:9px; }
+  .checklist li{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select:none;
+  }
+  .checklist li input{ accent-color: var(--green); width:15px; height:15px; cursor:pointer; }
+  .checklist li.done{ color: var(--text-faint); text-decoration: line-through; }
+
+  footer{
+    text-align:center;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-faint);
+    padding: 20px 0 50px;
+  }
+
+  @media (min-width: 880px){
+    .sidebar{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+  <div class="titlebar-name">job_search <b>launchpad.html</b></div>
+</div>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-title">// Jump to</div>
+    <a href="#core"><span class="sq" style="background:var(--blue)"></span>core_boards</a>
+    <a href="#remote"><span class="sq" style="background:var(--green)"></span>remote_first</a>
+    <a href="#research"><span class="sq" style="background:var(--mauve)"></span>research_prep</a>
+    <a href="#checklist"><span class="sq" style="background:var(--yellow)"></span>daily_ritual</a>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <div class="eyebrow">status: actively searching</div>
+      <h1>Job Search Launchpad</h1>
+      <p>One page, every board. Fire off a search everywhere at once, or jump straight to a site.</p>
+    </div>
+
+    <div class="search-block">
+      <div class="label">// search all boards at once</div>
+      <div class="search-row">
+        <input id="q" type="text" value="Senior .NET Remote" placeholder="e.g. Staff Software Engineer .NET Remote">
+        <button onclick="searchAll()">Search all →</button>
+      </div>
+      <div class="search-note">Opens LinkedIn, Indeed, Dice, Built In, Wellfound, and We Work Remotely in new tabs, pre-filtered to remote where supported. Your browser may ask to allow pop-ups the first time.</div>
+    </div>
+
+    <section id="core">
+      <div class="section-head">
+        <span class="tag" style="color:var(--blue)">//</span>
+        <h2>Core Boards</h2>
+        <span class="count">5</span>
+      </div>
+      <div class="grid">
+        <a class="card core" target="_blank" rel="noopener" href="https://underdog.io">
+          <div class="card-top"><span class="card-name">Underdog.io</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Curated warm intros to vetted startups — skip the cold-apply pile entirely.</div>
+          <div class="card-meta">curated · warm intro</div>
+        </a>
+        <a class="card core" target="_blank" rel="noopener" href="https://www.linkedin.com/jobs/">
+          <div class="card-top"><span class="card-name">LinkedIn</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Biggest pool, recruiter InMail lives here. Worth keeping "Open to Work" tuned.</div>
+          <div class="card-meta">volume · networking</div>
+        </a>
+        <a class="card core" target="_blank" rel="noopener" href="https://builtin.com/jobs">
+          <div class="card-top"><span class="card-name">Built In</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Strong for mid-size tech/SaaS company profiles and culture detail.</div>
+          <div class="card-meta">saas · mid-size</div>
+        </a>
+        <a class="card core" target="_blank" rel="noopener" href="https://www.indeed.com">
+          <div class="card-top"><span class="card-name">Indeed</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Broad coverage, good salary transparency filters.</div>
+          <div class="card-meta">volume · salary data</div>
+        </a>
+        <a class="card core" target="_blank" rel="noopener" href="https://www.dice.com">
+          <div class="card-top"><span class="card-name">Dice</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Tech-focused, strong for W2/contract rate transparency and skills filters.</div>
+          <div class="card-meta">tech-only · rates</div>
+        </a>
+      </div>
+    </section>
+
+    <section id="remote">
+      <div class="section-head">
+        <span class="tag" style="color:var(--green)">//</span>
+        <h2>Remote-First</h2>
+        <span class="count">3</span>
+      </div>
+      <div class="grid">
+        <a class="card remote" target="_blank" rel="noopener" href="https://weworkremotely.com">
+          <div class="card-top"><span class="card-name">We Work Remotely</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">One of the oldest, largest fully-remote boards. Solid engineering category.</div>
+          <div class="card-meta">remote-only</div>
+        </a>
+        <a class="card remote" target="_blank" rel="noopener" href="https://wellfound.com/jobs">
+          <div class="card-top"><span class="card-name">Wellfound</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Formerly AngelList Talent — startup-heavy, salary/equity shown upfront.</div>
+          <div class="card-meta">startups · equity</div>
+        </a>
+        <a class="card remote" target="_blank" rel="noopener" href="https://news.ycombinator.com/item?id=whoishiring">
+          <div class="card-top"><span class="card-name">HN "Who's Hiring"</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Monthly thread, direct from founders/eng leads — no recruiter noise.</div>
+          <div class="card-meta">monthly thread</div>
+        </a>
+      </div>
+    </section>
+
+    <section id="research">
+      <div class="section-head">
+        <span class="tag" style="color:var(--mauve)">//</span>
+        <h2>Research &amp; Prep</h2>
+        <span class="count">2</span>
+      </div>
+      <div class="grid">
+        <a class="card research" target="_blank" rel="noopener" href="https://www.levels.fyi">
+          <div class="card-top"><span class="card-name">Levels.fyi</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Comp benchmarking by level/company — sanity-check offers before you counter.</div>
+          <div class="card-meta">comp data</div>
+        </a>
+        <a class="card research" target="_blank" rel="noopener" href="https://www.glassdoor.com">
+          <div class="card-top"><span class="card-name">Glassdoor</span><span class="card-arrow">↗</span></div>
+          <div class="card-desc">Interview questions and culture read before onsite/panel rounds.</div>
+          <div class="card-meta">interview intel</div>
+        </a>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="section-head">
+        <span class="tag" style="color:var(--yellow)">//</span>
+        <h2>Daily Ritual</h2>
+      </div>
+      <div class="checklist">
+        <div class="checklist-head">resets each page load — check off today's pass</div>
+        <ul id="ritual-list">
+          <li><input type="checkbox"><span>Scan LinkedIn + Underdog.io for new postings</span></li>
+          <li><input type="checkbox"><span>Run the "search all" above with this week's target title</span></li>
+          <li><input type="checkbox"><span>Send 2–3 tailored applications (resume swap done first)</span></li>
+          <li><input type="checkbox"><span>One outreach message to a recruiter or hiring manager</span></li>
+          <li><input type="checkbox"><span>Log anything you applied to before closing the tab</span></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>built for the search · last edited 2026-07-02</footer>
+
+<script>
+  document.querySelectorAll('#ritual-list input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      this.closest('li').classList.toggle('done', this.checked);
+    });
+  });
+
+  function searchAll(){
+    var q = document.getElementById('q').value.trim() || 'Senior .NET Remote';
+    var enc = encodeURIComponent(q);
+    var urls = [
+      'https://www.linkedin.com/jobs/search/?keywords=' + enc + '&f_WT=2',
+      'https://www.indeed.com/jobs?q=' + enc + '&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11',
+      'https://www.dice.com/jobs?q=' + enc + '&location=Remote',
+      'https://builtin.com/jobs?search=' + enc,
+      'https://wellfound.com/jobs?query=' + enc,
+      'https://weworkremotely.com/remote-jobs/search?term=' + enc
+    ];
+    urls.forEach(function(u){ window.open(u, '_blank'); });
+  }
+</script>
+
+</body>
+</html>
