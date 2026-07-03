@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>job_tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1e1e2e; --bg-sidebar:#181825; --bg-surface:#24243a; --bg-surface-hover:#2b2b45;
+    --border:#313148; --text:#cdd6f4; --text-dim:#7d7fa3; --text-faint:#565973;
+    --blue:#89b4fa; --green:#a6e3a1; --mauve:#cba6f7; --yellow:#f9e2af; --red:#f38ba8; --peach:#fab387;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;line-height:1.5;}
+  .titlebar{background:var(--bg-sidebar);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:30;}
+  .dots{display:flex;gap:6px;} .dot{width:11px;height:11px;border-radius:50%;}
+  .dot.r{background:#f38ba8;} .dot.y{background:#f9e2af;} .dot.g{background:#a6e3a1;}
+  .titlebar-name{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);margin-left:6px;}
+  .titlebar-name b{color:var(--text);}
+  main{max-width:920px;margin:0 auto;padding:32px 24px 80px;}
+
+  .hero{margin-bottom:26px;}
+  .hero .eyebrow{font-family:var(--mono);font-size:12.5px;color:var(--green);}
+  .hero .eyebrow::before{content:"$ ";color:var(--text-faint);}
+  .hero h1{font-family:var(--mono);font-size:26px;font-weight:700;margin:8px 0 6px;color:#fff;}
+  .hero p{color:var(--text-dim);font-size:14px;max-width:600px;}
+
+  .storage-note{
+    background: rgba(249,226,175,0.08); border:1px solid rgba(249,226,175,0.35);
+    color: var(--yellow); font-family:var(--mono); font-size:11.5px;
+    padding:9px 12px; border-radius:6px; margin-bottom:24px; line-height:1.5;
+  }
+
+  .panel{background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:20px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .panel-title{font-family:var(--mono);font-size:13px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;}
+
+  /* Week nav */
+  .week-nav{display:flex;align-items:center;gap:12px;}
+  .week-nav button{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:14px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .week-nav button:hover{background:var(--bg-surface-hover);}
+  .week-label{font-family:var(--mono);font-size:14px;color:var(--text);}
+  .week-label .today-btn{margin-left:8px;font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline;}
+
+  .badges{display:flex;gap:10px;flex-wrap:wrap;}
+  .badge{font-family:var(--mono);font-size:12px;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);}
+  .badge.pass{border-color:var(--green);color:var(--green);}
+  .badge.fail{border-color:var(--red);color:var(--red);}
+
+  /* Form */
+  .form-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .form-toggle button{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:12.5px;padding:9px;border-radius:6px;cursor:pointer;}
+  .form-toggle button.active{border-color:var(--blue);color:var(--blue);background:rgba(137,180,250,0.08);}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;}
+  .field input, .field select, .field textarea{
+    background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);
+    font-family:var(--sans);font-size:13.5px;padding:8px 10px;
+  }
+  .field textarea{resize:vertical;min-height:44px;font-family:var(--sans);}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--blue);}
+  .form-actions{margin-top:14px;display:flex;gap:10px;}
+  .btn{font-family:var(--mono);font-weight:700;font-size:12.5px;padding:9px 16px;border-radius:6px;border:none;cursor:pointer;}
+  .btn-primary{background:var(--blue);color:#1e1e2e;}
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-dim);}
+  .btn-ghost:hover{background:var(--bg-surface-hover);color:var(--text);}
+  .btn-sm{padding:5px 10px;font-size:11px;}
+
+  /* Entry list */
+  .entry-group-label{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px;}
+  .entry{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+    background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--blue);
+    border-radius:6px;padding:10px 12px;margin-bottom:8px;
+  }
+  .entry.activity{border-left-color:var(--mauve);}
+  .entry-main{font-size:13px;}
+  .entry-main .primary{font-weight:600;color:var(--text);}
+  .entry-main .secondary{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+  .entry-actions{display:flex;gap:6px;flex-shrink:0;}
+  .icon-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;padding:3px 6px;border-radius:4px;}
+  .icon-btn:hover{color:var(--text);background:var(--bg-surface-hover);}
+  .empty{color:var(--text-faint);font-size:13px;font-style:italic;padding:8px 0;}
+
+  /* Export box */
+  #exportBox{display:none;}
+  #exportBox textarea{
+    width:100%;min-height:220px;background:var(--bg);border:1px solid var(--border);border-radius:6px;
+    color:var(--text);font-family:var(--mono);font-size:12px;padding:12px;white-space:pre;
+  }
+
+  /* All applications table */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);text-align:left;padding:8px 8px;border-bottom:1px solid var(--border);}
+  td{padding:9px 8px;border-bottom:1px solid var(--border);color:var(--text-dim);}
+  td.co{color:var(--text);font-weight:600;}
+  select.status-select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:5px;}
+  .filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .filter-row input, .filter-row select{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--sans);font-size:12.5px;padding:7px 10px;}
+
+  .backup-row{display:flex;gap:10px;flex-wrap:wrap;}
+  footer{text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);padding:20px 0 50px;}
+  @media(max-width:600px){ .field-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+  <div class="titlebar-name">job_search <b>tracker.html</b></div>
+</div>
+
+<main>
+  <div class="hero">
+    <div class="eyebrow">status: tracking</div>
+    <h1>Application Tracker</h1>
+    <p>Log applications and work-search activities once. Pull a Frances Online-ready summary for each week automatically.</p>
+  </div>
+
+  <div class="storage-note">
+    // Data is stored in this browser only (localStorage), no server. Use "Export backup" regularly, and after moving to GitHub Pages, since clearing browser data or switching devices/browsers will lose it.
+  </div>
+
+  <!-- Week status -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="week-nav">
+        <button onclick="shiftWeek(-1)">←</button>
+        <span class="week-label" id="weekLabel"></span>
+        <button onclick="shiftWeek(1)">→</button>
+        <span class="today-btn" onclick="goToday()">today</span>
+      </div>
+      <div class="badges" id="weekBadges"></div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="exportWeek()">Export this week for Frances Online →</button>
+    </div>
+    <div id="exportBox" class="panel" style="margin-top:14px;">
+      <div class="panel-head"><div class="panel-title">// copy into Frances Online</div>
+        <button class="btn btn-ghost btn-sm" onclick="copyExport()">Copy</button>
+      </div>
+      <textarea id="exportText" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Add entry -->
+  <div class="panel">
+    <div class="panel-title" style="margin-bottom:12px;">// add entry</div>
+    <div class="form-toggle">
+      <button id="tabApp" class="active" onclick="setKind('application')">Job application (direct contact)</button>
+      <button id="tabAct" onclick="setKind('activity')">Other work-search activity</button>
+    </div>
+
+    <div id="appFields" class="field-grid">
+      <div class="field"><label>Employer</label><input id="f_employer" placeholder="e.g. Solvd, Inc."></div>
+      <div class="field"><label>Job title</label><input id="f_jobTitle" placeholder="e.g. Senior Full Stack Engineer"></div>
+      <div class="field"><label>Location</label><input id="f_location" placeholder="Remote" value="Remote"></div>
+      <div class="field"><label>Date</label><input id="f_date" type="date"></div>
+      <div class="field">
+        <label>Contact method</label>
+        <select id="f_method">
+          <option>Online application</option>
+          <option>Email</option>
+          <option>Phone call</option>
+          <option>In person</option>
+          <option>Referral</option>
+          <option>Mail</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Source</label>
+        <select id="f_source">
+          <option>LinkedIn</option><option>Indeed</option><option>Dice</option><option>Built In</option>
+          <option>Underdog.io</option><option>Wellfound</option><option>We Work Remotely</option>
+          <option>HN Who's Hiring</option><option>Referral</option><option>Company site</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status / result</label>
+        <select id="f_status">
+          <option>Applied — awaiting response</option>
+          <option>Phone screen scheduled</option>
+          <option>Interviewing</option>
+          <option>Offer</option>
+          <option>Rejected</option>
+          <option>No response / ghosted</option>
+          <option>Withdrew</option>
+        </select>
+      </div>
+      <div class="field full"><label>Notes (optional)</label><textarea id="f_notes" placeholder="Contact name, referral source, salary range discussed, etc."></textarea></div>
+    </div>
+
+    <div id="actFields" class="field-grid" style="display:none;">
+      <div class="field"><label>Date</label><input id="a_date" type="date"></div>
+      <div class="field">
+        <label>Activity type</label>
+        <select id="a_type">
+          <option>Updated resume / cover letter</option>
+          <option>Reviewed job postings</option>
+          <option>Networking / informational interview</option>
+          <option>WorkSource Oregon activity</option>
+          <option>Career fair / event</option>
+          <option>Skills training / certification</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field full"><label>Description</label><textarea id="a_desc" placeholder="e.g. Reviewed 12 postings on LinkedIn and Dice, tailored resume for insurtech roles"></textarea></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="addEntry()">Add entry</button>
+      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- This week's entries -->
+  <div class="panel">
+    <div class="panel-title" style="margin-bottom:4px;">// this week's log</div>
+    <div id="weekEntries"></div>
+  </div>
+
+  <!-- All applications -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">// all applications</div>
+    </div>
+    <div class="filter-row">
+      <input id="filterText" placeholder="Search company or title…" oninput="renderAllApps()">
+      <select id="filterStatus" onchange="renderAllApps()">
+        <option value="">All statuses</option>
+        <option>Applied — awaiting response</option>
+        <option>Phone screen scheduled</option>
+        <option>Interviewing</option>
+        <option>Offer</option>
+        <option>Rejected</option>
+        <option>No response / ghosted</option>
+        <option>Withdrew</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="appsTable">
+        <thead><tr><th>Date</th><th>Employer</th><th>Title</th><th>Source</th><th>Status</th><th></th></tr></thead>
+        <tbody id="appsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Backup -->
+  <div class="panel">
+    <div class="panel-title" style="margin-bottom:12px;">// backup</div>
+    <div class="backup-row">
+      <button class="btn btn-ghost" onclick="exportBackup()">Export JSON backup</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">Import JSON backup</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importBackup(event)">
+    </div>
+  </div>
+
+</main>
+<footer>local-only · no data leaves your browser</footer>
+
+<script>
+const STORAGE_KEY = 'jobTrackerEntries';
+let entries = [];
+let currentKind = 'application';
+let weekOffset = 0; // 0 = this week
+
+function loadEntries(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){ entries = []; }
+}
+function saveEntries(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }catch(e){
+    alert('Could not save to this browser\'s storage. Your entry was not saved. Try exporting a backup and freeing up storage.');
+  }
+}
+
+function setKind(kind){
+  currentKind = kind;
+  document.getElementById('tabApp').classList.toggle('active', kind==='application');
+  document.getElementById('tabAct').classList.toggle('active', kind==='activity');
+  document.getElementById('appFields').style.display = kind==='application' ? 'grid' : 'none';
+  document.getElementById('actFields').style.display = kind==='activity' ? 'grid' : 'none';
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function addEntry(){
+  if(currentKind === 'application'){
+    const employer = document.getElementById('f_employer').value.trim();
+    const jobTitle = document.getElementById('f_jobTitle').value.trim();
+    const date = document.getElementById('f_date').value || todayStr();
+    if(!employer || !jobTitle){ alert('Employer and job title are required.'); return; }
+    entries.push({
+      id: Date.now()+'_'+Math.random().toString(36).slice(2),
+      kind:'application',
+      date,
+      employer,
+      jobTitle,
+      location: document.getElementById('f_location').value.trim() || 'Remote',
+      method: document.getElementById('f_method').value,
+      source: document.getElementById('f_source').value,
+      status: document.getElementById('f_status').value,
+      notes: document.getElementById('f_notes').value.trim()
+    });
+    document.getElementById('f_employer').value='';
+    document.getElementById('f_jobTitle').value='';
+    document.getElementById('f_notes').value='';
+  } else {
+    const date = document.getElementById('a_date').value || todayStr();
+    const desc = document.getElementById('a_desc').value.trim();
+    if(!desc){ alert('Add a short description of the activity.'); return; }
+    entries.push({
+      id: Date.now()+'_'+Math.random().toString(36).slice(2),
+      kind:'activity',
+      date,
+      activityType: document.getElementById('a_type').value,
+      description: desc
+    });
+    document.getElementById('a_desc').value='';
+  }
+  saveEntries();
+  renderAll();
+}
+
+function clearForm(){
+  ['f_employer','f_jobTitle','f_notes','a_desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function deleteEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  entries = entries.filter(e=>e.id!==id);
+  saveEntries();
+  renderAll();
+}
+
+function editStatus(id, newStatus){
+  const e = entries.find(x=>x.id===id);
+  if(e){ e.status = newStatus; saveEntries(); renderAll(); }
+}
+
+// --- Week math: Oregon claim week runs Sunday–Saturday ---
+function getWeekRange(offset){
+  const now = new Date();
+  const day = now.getDay(); // 0 = Sunday
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() - day + offset*7);
+  sunday.setHours(0,0,0,0);
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate()+6);
+  return {start: sunday, end: saturday};
+}
+function fmt(d){ return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}); }
+function inRange(dateStr, start, end){
+  const d = new Date(dateStr+'T00:00:00');
+  return d >= start && d <= end;
+}
+
+function shiftWeek(dir){ weekOffset += dir; renderAll(); }
+function goToday(){ weekOffset = 0; renderAll(); }
+
+function weekEntriesFor(offset){
+  const {start,end} = getWeekRange(offset);
+  return entries.filter(e => inRange(e.date, start, end)).sort((a,b)=> a.date.localeCompare(b.date));
+}
+
+function renderWeekPanel(){
+  const {start,end} = getWeekRange(weekOffset);
+  document.getElementById('weekLabel').textContent = fmt(start) + ' – ' + fmt(end) + (weekOffset===0 ? ' (this week)' : '');
+
+  const wk = weekEntriesFor(weekOffset);
+  const directContacts = wk.filter(e=>e.kind==='application');
+  const total = wk.length;
+
+  const badges = document.getElementById('weekBadges');
+  const dcPass = directContacts.length >= 2;
+  const totPass = total >= 5;
+  badges.innerHTML = `
+    <span class="badge ${dcPass?'pass':'fail'}">Direct contacts: ${directContacts.length}/2 ${dcPass?'✓':''}</span>
+    <span class="badge ${totPass?'pass':'fail'}">Total activities: ${total}/5 ${totPass?'✓':''}</span>
+  `;
+
+  const container = document.getElementById('weekEntries');
+  if(wk.length===0){
+    container.innerHTML = '<div class="empty">No entries logged for this week yet.</div>';
+    return;
+  }
+  let html = '';
+  if(directContacts.length){
+    html += '<div class="entry-group-label">Direct contacts (job applications)</div>';
+    directContacts.forEach(e=>{
+      html += `<div class="entry">
+        <div class="entry-main">
+          <div class="primary">${escapeHtml(e.employer)} — ${escapeHtml(e.jobTitle)}</div>
+          <div class="secondary">${e.date} · ${escapeHtml(e.location)} · ${escapeHtml(e.method)} · ${escapeHtml(e.source)} · ${escapeHtml(e.status)}</div>
+        </div>
+        <div class="entry-actions"><button class="icon-btn" onclick="deleteEntry('${e.id}')">✕</button></div>
+      </div>`;
+    });
+  }
+  const acts = wk.filter(e=>e.kind==='activity');
+  if(acts.length){
+    html += '<div class="entry-group-label">Other work-search activities</div>';
+    acts.forEach(e=>{
+      html += `<div class="entry activity">
+        <div class="entry-main">
+          <div class="primary">${escapeHtml(e.activityType)}</div>
+          <div class="secondary">${e.date} · ${escapeHtml(e.description)}</div>
+        </div>
+        <div class="entry-actions"><button class="icon-btn" onclick="deleteEntry('${e.id}')">✕</button></div>
+      </div>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function exportWeek(){
+  const {start,end} = getWeekRange(weekOffset);
+  const wk = weekEntriesFor(weekOffset);
+  const dc = wk.filter(e=>e.kind==='application');
+  const acts = wk.filter(e=>e.kind==='activity');
+
+  let out = `Week: ${fmt(start)} – ${fmt(end)}\n\nDIRECT CONTACTS (${dc.length})\n`;
+  if(dc.length===0){ out += '  none logged\n'; }
+  dc.forEach((e,i)=>{
+    out += `${i+1}. Employer: ${e.employer}\n   Job title: ${e.jobTitle}\n   Location: ${e.location}\n   Date: ${e.date}\n   Contact method: ${e.method}\n   Result: ${e.status}${e.notes ? '\n   Notes: '+e.notes : ''}\n\n`;
+  });
+  out += `OTHER WORK-SEARCH ACTIVITIES (${acts.length})\n`;
+  if(acts.length===0){ out += '  none logged\n'; }
+  acts.forEach((e,i)=>{
+    out += `${i+1}. Date: ${e.date}\n   Activity: ${e.activityType}\n   Description: ${e.description}\n\n`;
+  });
+  out += `Total work-search activities this week: ${wk.length} (need 5, at least 2 direct contacts)\n`;
+
+  document.getElementById('exportText').value = out;
+  document.getElementById('exportBox').style.display = 'block';
+}
+
+function copyExport(){
+  const ta = document.getElementById('exportText');
+  ta.select();
+  navigator.clipboard && navigator.clipboard.writeText(ta.value);
+  document.execCommand && document.execCommand('copy');
+}
+
+function renderAllApps(){
+  const search = document.getElementById('filterText').value.toLowerCase();
+  const statusFilter = document.getElementById('filterStatus').value;
+  const apps = entries.filter(e=>e.kind==='application')
+    .filter(e => (e.employer+' '+e.jobTitle).toLowerCase().includes(search))
+    .filter(e => !statusFilter || e.status===statusFilter)
+    .sort((a,b)=> b.date.localeCompare(a.date));
+
+  const statusOptions = ['Applied — awaiting response','Phone screen scheduled','Interviewing','Offer','Rejected','No response / ghosted','Withdrew'];
+
+  const body = document.getElementById('appsTableBody');
+  if(apps.length===0){
+    body.innerHTML = '<tr><td colspan="6" class="empty">No applications logged yet.</td></tr>';
+    return;
+  }
+  body.innerHTML = apps.map(e=>`
+    <tr>
+      <td>${e.date}</td>
+      <td class="co">${escapeHtml(e.employer)}</td>
+      <td>${escapeHtml(e.jobTitle)}</td>
+      <td>${escapeHtml(e.source)}</td>
+      <td><select class="status-select" onchange="editStatus('${e.id}', this.value)">
+        ${statusOptions.map(s=>`<option ${s===e.status?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+      <td><button class="icon-btn" onclick="deleteEntry('${e.id}')">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'job-tracker-backup-' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    try{
+      const imported = JSON.parse(reader.result);
+      if(!Array.isArray(imported)) throw new Error('bad format');
+      if(confirm(`Import ${imported.length} entries? This will merge with your existing ${entries.length} entries.`)){
+        const existingIds = new Set(entries.map(e=>e.id));
+        imported.forEach(e=>{ if(!existingIds.has(e.id)) entries.push(e); });
+        saveEntries();
+        renderAll();
+      }
+    }catch(e){
+      alert('Could not read that file as a valid backup.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function renderAll(){
+  renderWeekPanel();
+  renderAllApps();
+  document.getElementById('exportBox').style.display = 'none';
+}
+
+// init
+document.getElementById('f_date').value = todayStr();
+document.getElementById('a_date').value = todayStr();
+loadEntries();
+renderAll();
+</script>
+
+</body>
+</html>
